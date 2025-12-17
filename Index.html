@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TempMail Pro - Email Forward Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Animated Background Particles -->
+    <div id="particles" class="particles"></div>
+    
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
+    
+    <!-- Edit Forward Email Modal -->
+    <div id="edit-forward-modal" class="edit-forward-modal">
+        <div class="edit-forward-content">
+            <div class="edit-forward-title">Edit Forward Email</div>
+            
+            <div class="input-group">
+                <label class="input-label" for="edit-forward-email">New Forward Email</label>
+                <input type="email" id="edit-forward-email" class="input-field" placeholder="user@gmail.com">
+                <div style="font-size: 0.9rem; color: var(--gray-500); margin-top: 6px;">All future aliases will use this email</div>
+            </div>
+            
+            <div class="forward-email-actions">
+                <button id="cancel-edit-forward" class="btn btn-secondary" style="flex: 1;">Cancel</button>
+                <button id="save-forward-email" class="btn btn-success" style="flex: 1;">Save Email</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Login Screen (shown by default) -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-logo">📧</div>
+        <h1 class="login-title">TempMail Pro</h1>
+        <p class="login-subtitle">Secure temporary email addresses to protect your privacy</p>
+        
+        <div class="card" style="width: 100%; max-width: 420px;">
+            <div class="input-group">
+                <label class="input-label" for="login-api-key">API Key</label>
+                <input type="password" id="login-api-key" class="input-field" placeholder="Enter your API key">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label" for="login-domain">Domain Name</label>
+                <input type="text" id="login-domain" class="input-field" placeholder="yourdomain.com">
+            </div>
+            
+            <button id="login-btn" class="btn btn-primary mt-2">
+                <span>Login</span>
+            </button>
+            
+            <div id="login-message" class="message hidden mt-2"></div>
+            
+            <div class="mt-3" style="font-size: 0.9rem; color: var(--gray-600);">
+                <p><strong>Tips:</strong></p>
+                <p>1. Enter your API key </p>
+                <p>2. Enter your domain name</p>
+                <p>3. Click Login button</p>
+                <p>4. Data will be saved in your browser</p>
+            </div>
+        </div>
+        
+        <!-- Contact Info in Login Screen -->
+        <div class="contact-info mt-3" style="width: 100%; max-width: 420px;">
+            <div>Secure temporary email addresses to protect your privacy</div> 
+            <h3>Contact Us</h3>
+            <div class="contact-links">
+                <a href="tel:+8801331373661" class="contact-link phone">
+                    <i class="fas fa-phone"></i>
+                </a>
+                <a href="mailto:your@email.com" class="contact-link email">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                <a href="https://facebook.com" target="_blank" class="contact-link facebook">
+                    <i class="fab fa-facebook"></i>
+                </a>
+                <a href="https://wa.me" target="_blank" class="contact-link whatsapp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a href="https://t.me" target="_blank" class="contact-link telegram">
+                    <i class="fab fa-telegram"></i>
+                </a>
+            </div>
+            <div>© 2025 <span class="developer-name">Riyad Mahfuz</span> Temp Mail</div>
+            <div class="developer-credit mt-2">Developed by <span class="developer-name">Riyad Mahfuz</span></div>
+        </div>
+    </div>
+    
+    <!-- Main App (hidden until login) -->
+    <div id="app-container" class="app-container hidden">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-title"> 📧 TempMail Pro</div>
+            <div class="header-actions">
+                <button class="icon-btn" id="refresh-btn" title="Refresh">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button class="icon-btn" id="logout-btn" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+        
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="section active">
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <div class="stat-value" id="total-aliases-count">0</div>
+                        <div class="stat-label">Total Aliases</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="active-aliases-count">0</div>
+                        <div class="stat-label">Active</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="expired-aliases-count">0</div>
+                        <div class="stat-label">Expired</div>
+                    </div>
+                </div>
+                
+                <div class="quick-actions">
+                    <div class="card" style="cursor: pointer;" data-section="create-alias">
+                        <div style="font-size: 2.2rem; color: var(--primary); margin-bottom: 12px;">+</div>
+                        <div style="font-weight: 800; font-size: 1.1rem;">Create Alias</div>
+                        <div style="font-size: 0.9rem; color: var(--gray-500); margin-top: 8px;">New email alias</div>
+                    </div>
+                    
+                    <div class="card" style="cursor: pointer;" data-section="manage-aliases">
+                        <div style="font-size: 2.2rem; color: var(--success); margin-bottom: 12px;">📋</div>
+                        <div style="font-weight: 800; font-size: 1.1rem;">Manage Aliases</div>
+                        <div style="font-size: 0.9rem; color: var(--gray-500); margin-top: 8px;">View and manage</div>
+                    </div>
+                </div>
+                
+                <!-- Forward Address Display -->
+                <div id="forward-address-display" class="forward-address-display hidden">
+                    <div class="forward-address-label">
+                        <i class="fas fa-forward"></i> Emails forwarded to:
+                    </div>
+                    <div id="forward-address-value" class="forward-address-value">
+                        Loading...
+                    </div>
+                </div>
+                
+                <!-- Recent Aliases (Changed from Recent Confirmation Codes) -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Recent Aliases</div>
+                        <div style="font-size: 0.75rem; color: var(--gray-500);">
+                            <i class="fas fa-sync-alt"></i> Mail logs auto-load every 40s
+                        </div>
+                    </div>
+                    <div id="recent-aliases">
+                        <p style="color: var(--gray-500); text-align: center; padding: 30px;">No aliases created yet. Create your first alias to get started.</p>
+                    </div>
+                </div>
+                
+                <!-- Code Patterns Info -->
+                <div class="code-patterns-info">
+                    <div class="code-patterns-title">
+                        <i class="fas fa-info-circle"></i> Auto-detected Code Patterns
+                    </div>
+                    <div class="code-patterns-list">
+                        <p>The system automatically detects these patterns:</p>
+                        <ul>
+                            <li><strong>95676 is your confirmation code</strong> → Extracts "95676"</li>
+                            <li><strong>Your code is: 123456</strong> → Extracts "123456"</li>
+                            <li><strong>Verification code: 789012</strong> → Extracts "789012"</li>
+                            <li><strong>Code: ABC-123-DEF</strong> → Extracts "ABC-123-DEF"</li>
+                            <li><strong>OTP: 456789</strong> → Extracts "456789"</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Developer Credit -->
+                <div class="developer-credit">
+                    Developed by <span class="developer-name">Riyad Mahfuz</span>
+                </div>
+            </section>
+            
+            <!-- Create Alias Section -->
+            <section id="create-alias-section" class="section">
+                <!-- Saved Forward Email Display -->
+                <div id="saved-forward-section" class="saved-forward-section hidden">
+                    <div class="saved-forward-header">
+                        <div class="saved-forward-label">
+                            <i class="fas fa-save"></i> Saved Forward Email
+                        </div>
+                        <button class="edit-forward-btn" id="edit-saved-forward">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    </div>
+                    <div id="saved-forward-value" class="saved-forward-value">
+                        Loading...
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--gray-600);">
+                        This email will be used for all new aliases. You can edit it anytime.
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Create New Alias</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label" for="create-alias-name">Alias Name (left part)</label>
+                        <input type="text" id="create-alias-name" class="input-field" placeholder="contact, sales, info, etc.">
+                        <div style="font-size: 0.9rem; color: var(--gray-500); margin-top: 6px;">Will be combined with: alias@domain.com</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label" for="create-forward-email">Forward Email</label>
+                        <input type="email" id="create-forward-email" class="input-field" placeholder="user@gmail.com">
+                        <div style="font-size: 0.9rem; color: var(--gray-500); margin-top: 6px;">Emails will be forwarded here</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Alias Type</label>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button id="alias-type-custom" class="btn btn-secondary btn-small" style="flex: 1;">Custom Name</button>
+                            <button id="alias-type-random" class="btn btn-secondary btn-small" style="flex: 1;">Random Name</button>
+                        </div>
+                    </div>
+                    
+                    <button id="create-alias-btn" class="btn btn-success mt-2">Create Alias</button>
+                    
+                    <div id="create-alias-message" class="message hidden mt-2"></div>
+                </div>
+                
+                <div class="card mt-2">
+                    <div class="card-title">Important Information</div>
+                    <div style="font-size: 0.95rem; color: var(--gray-600); line-height: 1.6;">
+                        <p>• Alias will be automatically saved </p>
+                        <p>• Alias will auto-delete after <strong>4 minutes</strong></p>
+                        <p>• Cannot forward to your own domain's email</p>
+                        <p>• Forward email will be saved for future use</p>
+                        <p>• Confirmation codes will be auto-detected and displayed</p>
+                        <p>• Mail logs are auto-loaded every <strong>40 seconds</strong></p>
+                    </div>
+                </div>
+                
+                <!-- Developer Credit -->
+                <div class="developer-credit">
+                    Developed by <span class="developer-name">Riyad Mahfuz</span>
+                </div>
+            </section>
+            
+            <!-- Manage Aliases Section -->
+            <section id="manage-aliases-section" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Manage Aliases</div>
+                        <button id="search-toggle" class="icon-btn" style="width: 40px; height: 40px;">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="search-container" class="hidden">
+                        <div class="input-group">
+                            <input type="text" id="search-aliases" class="input-field" placeholder="Search aliases or forward emails...">
+                        </div>
+                    </div>
+                    
+                    <!-- Alias Tabs -->
+                    <div class="alias-tabs">
+                        <button class="alias-tab active" data-tab="all">All Aliases</button>
+                        <button class="alias-tab" data-tab="active">Active</button>
+                        <button class="alias-tab" data-tab="expired">Expired</button>
+                    </div>
+                    
+                    <!-- Show Expired Aliases Toggle -->
+                    <div class="expired-filter">
+                        <input type="checkbox" id="show-expired-toggle" class="expired-filter-checkbox" checked>
+                        <label for="show-expired-toggle" class="expired-filter-label">Show expired aliases in history</label>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button id="refresh-aliases-btn" class="btn btn-secondary btn-small" style="flex: 1;">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <button id="delete-expired-aliases-btn" class="btn btn-warning btn-small" style="flex: 1;">
+                            <i class="fas fa-trash-alt"></i> Clear Expired
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="aliases-container">
+                    <!-- Aliases will be loaded here -->
+                </div>
+                
+                <!-- Developer Credit -->
+                <div class="developer-credit">
+                    Developed by <span class="developer-name">Riyad Mahfuz</span>
+                </div>
+            </section>
+            
+            <!-- Email Logs Section -->
+            <section id="email-logs-section" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Email Logs & Confirmation Codes</div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="device-indicator" id="device-id-display">Device: Loading...</span>
+                            <span class="device-indicator" style="background: var(--gradient-warning);">
+                                <i class="fas fa-clock"></i> Auto-load: 40s
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button id="load-logs-btn" class="btn btn-primary btn-small" style="flex: 1;">
+                            <i class="fas fa-download"></i> Load Logs
+                        </button>
+                        <button id="clear-logs-btn" class="btn btn-danger btn-small" style="flex: 1;">
+                            <i class="fas fa-broom"></i> Clear Logs
+                        </button>
+                        <button id="toggle-auto-load-btn" class="btn btn-success btn-small" style="flex: 1;">
+                            <i class="fas fa-play"></i> Auto Load ON
+                        </button>
+                    </div>
+                    
+                    <!-- Log Filters -->
+                    <div class="log-filters mt-2">
+                        <button class="log-filter-btn active" data-filter="all">All</button>
+                        <button class="log-filter-btn" data-filter="delivered">Delivered</button>
+                        <button class="log-filter-btn" data-filter="failed">Failed</button>
+                        <button class="log-filter-btn" data-filter="pending">Pending</button>
+                        <button class="log-filter-btn" data-filter="has-code">Has Code</button>
+                    </div>
+                    
+                    <!-- Confirmation Codes Section -->
+                    <div id="confirmation-codes-container" class="codes-container">
+                        <!-- Confirmation codes will be displayed here -->
+                    </div>
+                    
+                    <div id="logs-container" class="mt-2">
+                        <div class="empty-logs">
+                            <i class="fas fa-inbox"></i>
+                            <p>Logs not loaded yet. Click "Load Logs" to load email logs.</p>
+                            <p style="font-size: 0.9rem; color: var(--gray-500); margin-top: 10px;">
+                                <i class="fas fa-info-circle"></i> Only logs from aliases created on this device will be shown
+                            </p>
+                            <p style="font-size: 0.9rem; color: var(--gray-500); margin-top: 5px;">
+                                <i class="fas fa-sync-alt"></i> Mail logs auto-load every 40 seconds
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Developer Credit -->
+                <div class="developer-credit">
+                    Developed by <span class="developer-name">Riyad Mahfuz</span>
+                </div>
+            </section>
+        </main>
+        
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active" data-section="dashboard">
+                <div class="nav-icon"><i class="fas fa-home"></i></div>
+                <span>Home</span>
+            </a>
+            <a href="#" class="nav-item" data-section="create-alias">
+                <div class="nav-icon"><i class="fas fa-plus-circle"></i></div>
+                <span>Create</span>
+            </a>
+            <a href="#" class="nav-item" data-section="manage-aliases">
+                <div class="nav-icon"><i class="fas fa-list-alt"></i></div>
+                <span>Manage</span>
+            </a>
+            <a href="#" class="nav-item" data-section="email-logs">
+                <div class="nav-icon"><i class="fas fa-envelope"></i></div>
+                <span>Logs</span>
+            </a>
+        </nav>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
